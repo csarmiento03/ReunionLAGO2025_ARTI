@@ -1,0 +1,21 @@
+FROM lagocollaboration/lago-corsika:77402
+
+LABEL maintainer.name="The LAGO ARTI team"
+LABEL maintainer.email="lago-docker@lagoproject.net"
+ENV LANG=C.UTF-8
+ENV wdir="/opt"
+WORKDIR ${wdir}
+
+ARG CRK_VERSION="77402"
+ARG ARTI_BRANCH="master"
+ARG arti_pack="gcc gcc-c++ gcc-gfortran screen curl csh make perl perl-Data-Dumper git perl-Switch file unzip bzip2"
+# CORSIKA image is based on CENTOS, so we use yum
+RUN ["/bin/bash", "-c", "yum -y update \
+ && yum -y install $arti_pack \
+ && echo export LAGO_CRK=\"/opt/lago-corsika-${CRK_VERSION}/run\" >> ${HOME}/.bashrc \
+ && git clone https://github.com/lagoproject/arti.git -b ${ARTI_BRANCH} \
+ && cd arti \
+ && ./lago-arti.sh \
+ && source ${HOME}/.bashrc \
+ && make"]
+CMD bash
